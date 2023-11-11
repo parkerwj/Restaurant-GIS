@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Document Metadata -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Find Nearby Restaurants</title>
+
+  <!-- Styling for HTML and Map Container -->
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <!-- ArcGIS API Stylesheet and JavaScript Library -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css" />
+  <script src="https://js.arcgis.com/4.28/"></script>
+
+  <!-- JavaScript Code Block -->
+  <script>
+    require([
+      // ArcGIS API Modules
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/Search",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+      "esri/widgets/Popup",
+    ], function (
+      // Variables for ArcGIS API Modules
+      esriConfig,
+      Map,
+      MapView,
+      Search,
+      Graphic,
+      GraphicsLayer,
+      Popup
+    ) {
+      // Set ArcGIS API Key
+      esriConfig.apiKey =
+        "AAPK30fda7bb93864f9d90e01cdc1f0999a65g8LO9w-1FsxTtYnUrUyfTR3Rpi_BM3Qe6k_gX6ifdwWLKTg8RxnjlUrLnbF8-yX";
+
+      const map = new Map({
+        basemap: "arcgis/topographic",
+      });
+
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+
+      // Create a MapView centered on coordinates with a specified zoom level
+      const view = new MapView({
+        map: map,
+        center: [-111.7897, 43.8260],
+        zoom: 13,
+        container: "viewDiv",
+      });
+
+      // Add a Search widget to the top-right corner of the view
+      const search = new Search({
+        view: view,
+      });
+      view.ui.add(search, "top-right");
+      
+      // restaurant objects with name, location, rating, website, and description
+      const restaurants = [
+      {
+          "name": "The Hickory",
+          "location": [-111.7788773, 43.8363455],
+          "rating": 4.6,
+          "website": "https://www.thehickorybbq.com/",
+          "description": "A delightful barbecue restaurant with a cozy ambiance.",
+        },
+        {
+          "name": "Big Jud's",
+          "location": [-111.785525, 43.716917],
+          "rating": 4.7,
+          "website": "http://www.bigjuds.com/",
+          "description": "Hamburger restaurant with a wide variety of delicious burgers.",
+        },
+        {
+          "name": "Applebee's Grill + Bar",
+          "location": [-111.811795, 43.803969],
+          "rating": 3.9,
+          "website": "https://restaurants.applebees.com/en-us/id/rexburg/975-university-blvd-84021?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=84021&utm_content=website",
+          "description": "Full-service chain bar & grill providing hearty American eats in an informal setting.",
+        },
+        {
+          "name": "Da Pineapple Grill",
+          "location": [-111.788803, 43.818245],
+          "rating": 4.5,
+          "website": "https://www.pineapplegrill.com/",
+          "description": "Hawaiian comfort food served in a space with a thatched roof sushi bar & tropical interior details.",
+        },
+        {
+          "name": "Pizza Pie Cafe",
+          "location": [-111.777686, 43.831384],
+          "rating": 4.3,
+          "website": "https://pizzapiecafe.co/",
+          "description": "Lively, laid-back regional chain serving pizzas, pastas & salads, plus creative dessert pies.",
+        },
+        {
+          "name": "Original Thai",
+          "location": [-111.783378, 43.825858],
+          "rating": 4.0,
+          "website": "https://m.facebook.com/profile.php?id=100063509352541&_rdr",
+          "description": "Traditional Thai classics are prepared with varying spice levels at this comfy storefront standby.",
+        },
+        {
+          "name": "Fresco Kitchen And Grill",
+          "location": [-111.809891, 43.801422],
+          "rating": 4.2,
+          "website": "https://frescokitchengrill.com/",
+          "description": "Contemporary eatery offering artisan pizzas, salads & sandwiches, plus breakfast & a drink menu.",
+        },
+        {
+          "name": "JB's",
+          "location": [-111.788333, 43.826389],
+          "rating": 3.6,
+          "website": null,
+          "description": "Family-friendly restaurant chain serving breakfast eats & classic American comfort food.",
+        },
+        {
+          "name": "El Rancho Taqueria",
+          "location": [-111.778611, 43.841111],
+          "rating": 4.5,
+          "website": "https://www.facebook.com/RanchoTaqueria/",
+          "description": "Authentic Mexican flavors with a diverse menu.",
+        },
+        {
+          "name": "Gringo's Mexican Restaurant",
+          "location": [-111.783473, 43.825082],
+          "rating": 3.7,
+          "website": "https://gringos-rexburg.my.canva.site/",
+          "description": "Mexican cuisine in a vibrant and friendly atmosphere.",
+        },
+        {
+          "name": "Costa Vida",
+          "location": [-111.778884, 43.836586],
+          "rating": 4.3,
+          "website": "https://www.costavida.com/locations/us/id/rexburg/485-n-2nd-e/",
+          "description": "Laid-back counter-serve Mexican chain with Baja-style tacos & burritos, plus gluten-free options.",
+        },
+        {
+          "name": "Mandarin Restaurant",
+          "location": [-111.77723, 43.84006],
+          "rating": 4.2,
+          "website": "https://m.facebook.com/pages/Mandarin-Restaurant/251228054911210",
+          "description": "A go-to place for traditional Mandarin cuisine enthusiasts.",
+        },
+        {
+          "name": "Casa De Ochoa",
+          "location": [-111.788775, 43.818031],
+          "rating": 4.3,
+          "website": "https://www.casadeochoa.com/menu",
+          "description": "Mexican standards, California burritos & flan-topped chocolate cake doled out in relaxed quarters.",
+        },
+        {
+          "name": "Fong's Cafe",
+          "location": [-111.680408, 43.97234],
+          "rating": 3.8,
+          "website": "https://microsite.talech.com/ordering/NEW-FONGS-RESTAURANT-REXBURG-ID/518712",
+          "description": "A casual eatery offering a variety of dishes.",
+        },
+        {
+          "name": "Red Rabbit Grill",
+          "location": [-111.7885, 43.825123],
+          "rating": 4.6,
+          "website": "https://www.redrabbitgrill.com/",
+          "description": "Modern grill and bar with a diverse menu and a welcoming ambiance.",
+        },
+        {
+          "name": "New Fong's",
+          "location": [-111.790054, 43.818516],
+          "rating": 3.8,
+          "website": "https://microsite.talech.com/ordering/NEW-FONGS-RESTAURANT-REXBURG-ID/518712",
+          "description": "A casual eatery with a wide range of menu options.",
+        },
+        {
+          "name": "Domino's Pizza",
+          "location": [-111.788635, 43.825676],
+          "rating": 4.2,
+          "website": "https://www.dominos.com/en/?utm_source=google&utm_medium=loclist&utm_campaign=localmaps",
+          "description": "Delivery/carryout chain offering a wide range of pizzas & a variety of other dishes & sides.",
+        },
+        {
+          "name": "Arby's",
+          "location": [-111.777538, 43.836142],
+          "rating": 4.2,
+          "website": "https://locations.arbys.com/id/rexburg/478-n-2nd-e.html?utm_source=google%20my%20business&utm_medium=organic&utm_campaign=website%20link&gclid=EAIaIgocChMI1Pychu28ggMVYQ6tBh3QtQPAEBAYASDIARIC98vw_wcB",
+          "description": "Fast-food chain, known for its roast beef, serving up hot & cold sandwiches, fries & shakes.",
+        },
+        {
+          "name": "Tacos Tepito",
+          "location": [-111.776583, 43.833736],
+          "rating": 4.5,
+          "website": "https://www.facebook.com/pages/Tacos-Tepito/102403159837840",
+          "description": "Authentic tacos in a vibrant and casual setting.",
+        },
+        {
+          "name": "Cafe Rio Mexican Grill",
+          "location": [-111.786159, 43.822036],
+          "rating": 3.7,
+          "website": "https://www.caferio.com/locations/rexburg",
+          "description": "Counter-serve eatery dishing up Mexican classics including hand-rolled tortillas, burritos & tacos.",
+        },
+      ];
+
+      const markers = []; // Array to store all markers
+      
+      // Iterate through restaurant data to create markers
+      restaurants.forEach((restaurant, index) => {
+        // Create a point geometry for each restaurant
+        const point = {
+          type: "point",
+          longitude: restaurant.location[0],
+          latitude: restaurant.location[1],
+        };
+
+        let symbolColor;
+
+        // Determine marker color based on the restaurant rating
+        if (restaurant.rating >= 4.5) {
+          symbolColor = [76, 175, 80];
+        } else if (restaurant.rating >= 4.0) {
+          symbolColor = [255, 193, 7];
+        } else {
+          symbolColor = [244, 67, 54];
+        }
+
+        // Create a Graphic for each marker
+        const marker = new Graphic({
+          geometry: point,
+          symbol: {
+            type: "simple-marker",
+            color: symbolColor,
+            outline: {
+              color: [255, 255, 255],
+              width: 2,
+            },
+          },
+          attributes: {
+            Name: restaurant.name,
+            Rating: restaurant.rating,
+            Website: restaurant.website,
+            Description: restaurant.description,
+          },
+        });
+
+        graphicsLayer.add(marker);
+        markers.push(marker); // Add marker to markers array
+
+        const popupTemplate = {
+          title: "{Name}",
+          content: [
+            {
+              type: "text",
+              text: "Rating: {Rating}/5",
+            },
+            {
+              type: "text",
+              text: `Website: <a href="{Website}" target="_blank">{Website}</a>`,
+            },
+            {
+              type: "text",
+              text: "Description: {Description}",
+            },
+          ],
+        };
+
+        // Assign the popup template to the marker
+        marker.popupTemplate = popupTemplate;
+      });
+
+      // Click event for each marker
+      markers.forEach(marker => {
+        marker.on("click", function () {
+          // Zoom to the clicked marker's geometry
+          view.goTo({ target: marker.geometry, zoom: 15 });
+        });
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <!-- Map Container -->
+  <div id="viewDiv"></div>
+</body>
+
+</html>
