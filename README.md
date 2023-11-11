@@ -6,7 +6,7 @@ The map software allows users to find nearby restaurants with dynamic markers in
 
 The purpose of this project is to showcase my abilities in working with mapping APIs and creating interactive web applications.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/NW809XYbdg4)
 
 # Development Environment
 
